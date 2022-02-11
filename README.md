@@ -1,7 +1,7 @@
 # A Blade directive for Vite/React assets
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/guihigashi/simple-vite-laravel.svg?style=flat-square)](https://packagist.org/packages/guihigashi/simple-vite-laravel)
-[![Total Downloads](https://img.shields.io/packagist/dt/guihigashi/simple-vite-laravel.svg?style=flat-square)](https://packagist.org/packages/guihigashi/simple-vite-laravel)
+[![Latest Stable Version](https://poser.pugx.org/guihigashi/simple-vite-laravel/v)](https://packagist.org/packages/guihigashi/simple-vite-laravel)
+[![Total Downloads](https://poser.pugx.org/guihigashi/simple-vite-laravel/downloads)](https://packagist.org/packages/guihigashi/simple-vite-laravel)
 
 ## Installation
 
