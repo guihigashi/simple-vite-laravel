@@ -24,7 +24,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         }
 
         Blade::directive('simple_vite', function () {
-            return "<?php echo SimpleVite::config(); ?>";
+            return "<?php echo SimpleVite::tags(); ?>";
         });
 
     }

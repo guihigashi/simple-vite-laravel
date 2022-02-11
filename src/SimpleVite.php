@@ -9,25 +9,15 @@ use Illuminate\Support\HtmlString;
 
 class SimpleVite
 {
-    private $base;
-    private $input;
-    private $integrity;
-
-    public function __construct()
+    public function tags(): HtmlString
     {
-        $this->base = Config::get('simple-vite.base');
-        $this->input = Config::get('simple-vite.input');
-        $this->integrity = Config::get('simple-vite.integrity');
+        return App::environment('production') ? $this->productionTags() : $this->localTags();
     }
 
-    public function config(): HtmlString
-    {
-        return App::environment('production') ? $this->productionConfig() : $this->localConfig();
-    }
-
-    private function localConfig(): HtmlString
+    private function localTags(): HtmlString
     {
         $host = sprintf('http://%s:3000', parse_url($_SERVER['HTTP_HOST'], PHP_URL_HOST));
+        $input = Config::get('simple-vite.input');
 
         return new HtmlString(ltrim(<<<HTML
             <script type="module">
@@ -38,16 +28,16 @@ class SimpleVite
                 window.__vite_plugin_react_preamble_installed__ = true
             </script>
             <script type="module" src="$host/@vite/client"></script>
-            <script type="module" src="$host/$this->input"></script>
+            <script type="module" src="$host/$input"></script>
         HTML
         ));
     }
 
-    private function productionConfig(): HtmlString
+    private function productionTags(): HtmlString
     {
-        $manifest = json_decode(File::get($this->publicPath('manifest.json')), true);
+        $manifest = json_decode(File::get($this->outDirPath('manifest.json')), true);
 
-        $main = $manifest[$this->input];
+        $main = $manifest[Config::get('simple-vite.input')];
 
         $imports = array_map(function (string $import) use ($manifest) {
             return $this->link("modulepreload", $manifest[$import]['file']);
@@ -67,19 +57,19 @@ class SimpleVite
 
     private function url(string $file): string
     {
-        return sprintf('/%s/%s', $this->base, $file);
+        return sprintf('/%s/%s', Config::get('simple-vite.base'), $file);
     }
 
-    private function publicPath(string $file): string
+    private function outDirPath(string $file): string
     {
-        return App::basePath(implode(DIRECTORY_SEPARATOR, ['public', $this->base, $file]));
+        return App::basePath(implode(DIRECTORY_SEPARATOR, ['public', Config::get('simple-vite.base'), $file]));
     }
 
-    private function integrity(string $file): string
+    private function integrity(string $algo, string $file): string
     {
         return sprintf('%s-%s',
-            $this->integrity['algo'],
-            base64_encode(hash_file($this->integrity['algo'], $this->publicPath($file), true))
+            $algo,
+            base64_encode(hash_file($algo, $this->outDirPath($file), true))
         );
     }
 
@@ -90,11 +80,13 @@ class SimpleVite
 
     private function link(string $rel, string $file): string
     {
-        if ($this->integrity['enabled']) {
+        $integrity = Config::get('simple-vite.integrity');
+
+        if ($integrity['enabled']) {
             return sprintf('<link rel="%s" href="%s" integrity="%s">',
                 $rel,
                 $this->url($file),
-                $this->integrity($file),
+                $this->integrity($integrity['algo'], $file),
             );
         }
 
