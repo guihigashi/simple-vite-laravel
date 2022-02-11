@@ -16,7 +16,10 @@ class SimpleVite
 
     private function localTags(): HtmlString
     {
-        $host = sprintf('http://%s:3000', parse_url($_SERVER['HTTP_HOST'], PHP_URL_HOST));
+        $host = sprintf('http://%s:%s',
+            parse_url($_SERVER['HTTP_HOST'], PHP_URL_HOST),
+            Config::get('simple-vite.dev_server_port')
+        );
         $input = Config::get('simple-vite.input');
 
         return new HtmlString(ltrim(<<<HTML
