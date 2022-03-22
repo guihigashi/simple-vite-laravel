@@ -65,7 +65,7 @@ class SimpleVite
 
     private function outDirPath(string $file): string
     {
-        return App::basePath(implode(DIRECTORY_SEPARATOR, ['public', Config::get('simple-vite.base'), $file]));
+        return implode(DIRECTORY_SEPARATOR, [App::make('path.public'), Config::get('simple-vite.base'), $file]);
     }
 
     private function integrity(string $algo, string $file): string
