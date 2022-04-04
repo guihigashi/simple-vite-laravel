@@ -42,9 +42,9 @@ class SimpleVite
 
         $main = $manifest[Config::get('simple-vite.input')];
 
-        $imports = array_map(function (string $import) use ($manifest) {
-            return $this->link("modulepreload", $manifest[$import]['file']);
-        }, $main['imports']);
+        $dynamicImports = array_map(function (string $dynamicImport) use ($manifest) {
+            return $this->link("modulepreload", $manifest[$dynamicImport]['file']);
+        }, $main['dynamicImports']);
 
         $styles = array_map(function (string $file) {
             return $this->link('stylesheet', $file);
@@ -52,7 +52,7 @@ class SimpleVite
 
         return new HtmlString(implode("\n\t", array_merge(
             [$this->link('modulepreload', $main['file'])],
-            $imports,
+            $dynamicImports,
             $styles,
             [$this->script($main['file'])]
         )));
