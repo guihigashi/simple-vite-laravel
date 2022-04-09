@@ -38,23 +38,17 @@ class SimpleVite
 
     private function productionTags(): HtmlString
     {
-        $manifest = json_decode(File::get($this->outDirPath('manifest.json')), true);
+        $manifest = new Manifest(File::get($this->outDirPath('manifest.json')));
 
-        $main = $manifest[Config::get('simple-vite.input')];
+        $imports = array_map(fn($f) => $this->link("modulepreload", $f), $manifest->imports());
 
-        $dynamicImports = array_map(function (string $dynamicImport) use ($manifest) {
-            return $this->link("modulepreload", $manifest[$dynamicImport]['file']);
-        }, $main['dynamicImports']);
-
-        $styles = array_map(function (string $file) {
-            return $this->link('stylesheet', $file);
-        }, $main['css']);
+        $styles = array_map(fn($f) => $this->link('stylesheet', $f), $manifest->css());
 
         return new HtmlString(implode("\n\t", array_merge(
-            [$this->link('modulepreload', $main['file'])],
-            $dynamicImports,
+            [$this->link('modulepreload', $manifest->file())],
+            $imports,
             $styles,
-            [$this->script($main['file'])]
+            [$this->script($manifest->file())]
         )));
     }
 
@@ -96,4 +90,3 @@ class SimpleVite
         return sprintf('<link rel="%s" href="%s">', $rel, $this->url($file));
     }
 }
-
